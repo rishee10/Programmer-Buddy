@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DSA Questions by Topic</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #eef2f3, #8e9eab);
+      padding: 40px;
+      color: #333;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+      font-size: 2rem;
+    }
+
+    .topic {
+      background-color: #2c3e50;
+      color: white;
+      padding: 15px 20px;
+      margin: 15px 0;
+      cursor: pointer;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .topic:hover {
+      background-color: #34495e;
+    }
+
+    .questions {
+      display: none;
+      padding-left: 25px;
+      padding-right: 10px;
+      background-color: #ffffff;
+      border-left: 4px solid #2c3e50;
+      border-radius: 0 0 8px 8px;
+      margin-bottom: 15px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.4s ease;
+    }
+
+    .question {
+      padding: 12px 10px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      color: #2c3e50;
+      transition: all 0.2s ease;
+    }
+
+    .question:hover {
+      background-color: #f1f1f1;
+      color: #1abc9c;
+      text-decoration: underline;
+    }
+
+    .topic::after {
+      content: "▼";
+      font-size: 0.8rem;
+      transition: transform 0.3s ease;
+    }
+
+    .topic.active::after {
+      transform: rotate(180deg);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 20px;
+      }
+
+      .topic {
+        font-size: 1rem;
+      }
+
+      .question {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🔥 DSA Questions by Topic</h2>
+  <div id="container"></div>
+
+
+  <script>
+    const data = {
+      "Array": [
+        { title: "Check if an Array is Sorted", link: "https://leetcode.com/problems/check-if-array-is-sorted-and-rotated/description/" },
+        { title: "Remove Duplicates in-place from Sorted Array", link: "https://leetcode.com/problems/remove-duplicates-from-sorted-array/description/" },
+        { title: "Rotate array by K elements", link: "https://leetcode.com/problems/rotate-array/description/" },
+        { title: "Move all Zeros to the end of the array", link: "https://leetcode.com/problems/move-zeroes/description/" },
+        { title: "Longest Subarray with sum K | [Postives and Negatives]", link: "https://leetcode.com/problems/maximum-subarray/description/" },
+
+        { title: "Two Sum : Check if a pair with given sum exists in Array", link: "https://leetcode.com/problems/two-sum/description/" },
+        { title: "Stock Buy And Sell", link: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/" },
+        { title: "3 Sum : Find triplets that add up to a zero", link: "https://leetcode.com/problems/3sum/description/" },
+        { title: "Merge two Sorted Arrays Without Extra Space", link: "https://leetcode.com/problems/merge-sorted-array/description/" },
+        { title: "4 Sum | Find Quads that add up to a target value", link: "https://leetcode.com/problems/4sum/description/" }
+
+      ],
+
+
+      "Strings": [
+        { title: "Remove outermost Paranthesis", link: "https://leetcode.com/problems/remove-outermost-parentheses/description/" },
+        { title: "Reverse words in a given string / Palindrome Check", link: "https://leetcode.com/problems/reverse-words-in-a-string/description/" },
+
+        { title: "Check if two strings are anagram of each other", link: "https://leetcode.com/problems/rotate-string/description/" },
+        { title: "Reverse words in a given string / Palindrome Check", link: "https://leetcode.com/problems/reverse-words-in-a-string/description/" },
+
+        { title: "Sort Characters by frequency", link: "https://leetcode.com/problems/sort-characters-by-frequency/description/" },
+        { title: "Reverse Every Word in A String", link: "https://leetcode.com/problems/reverse-words-in-a-string/description/" }
+      ],
+
+      "Linked List": [
+        { title: "Find middle element in a Linked List", link: "https://leetcode.com/problems/middle-of-the-linked-list/description/" },
+        { title: "Reverse a Linked List", link: "https://leetcode.com/problems/reverse-linked-list/description/" },
+        { title: "Detect a Cycle in a Linked List", link: "https://leetcode.com/problems/linked-list-cycle/description/" },
+        { title: "Remove N-th node from the end of a Linked List", link: "https://leetcode.com/problems/remove-nth-node-from-end-of-list/description/" },
+        { title: "Delete the Middle Node of the Linked List", link: "https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/description/" }
+        
+      ],
+      "Stack & Queue": [
+        { title: "Implement Stack using single Queue", link: "https://leetcode.com/problems/implement-stack-using-queues/description/" },
+        { title: "Implement Queue using Stack", link: "https://leetcode.com/problems/implement-queue-using-stacks/description/" },
+        { title: "Check for Balanced Parentheses", link: "https://leetcode.com/problems/valid-parentheses/description/" },
+        { title: "Implement Min Stack : O(2N) and O(N) Space Complexity", link: "https://leetcode.com/problems/min-stack/description/" },
+        { title: "Next Greater Element Using Stack", link: "https://leetcode.com/problems/next-greater-element-i/description/" }
+      ],
+
+      "Heaps": [
+        { title: "Kth largest element in an array [use priority queue]", link: "https://leetcode.com/problems/kth-largest-element-in-an-array/description/" },
+        { title: "Merge M sorted Lists", link: "https://leetcode.com/problems/merge-k-sorted-lists/description/" },
+        { title: "Kth largest element in a stream of running integers", link: "https://leetcode.com/problems/kth-largest-element-in-a-stream/description/"},
+
+        { title: "K most frequent elements", link: "https://leetcode.com/problems/top-k-frequent-elements/description/" },
+        { title: "Task Scheduler", link: "https://leetcode.com/problems/task-scheduler/description/" },
+        
+      ],
+
+      "Tree": [
+        { title: "Preorder Traversal of Binary Tree", link: "https://leetcode.com/problems/binary-tree-preorder-traversal/description/" },
+        { title: "Inorder Traversal of Binary Tree", link: "https://leetcode.com/problems/binary-tree-inorder-traversal/description/" },
+
+        { title: "Post-order Traversal of Binary Tree", link: "https://leetcode.com/problems/binary-tree-postorder-traversal/description/" },
+        { title: "Height of a Binary Tree", link: "https://leetcode.com/problems/maximum-depth-of-binary-tree/description/" },
+        { title: "Check if two trees are identical or not", link: "https://leetcode.com/problems/same-tree/description/" },
+        { title: "LCA in Binary Tree", link: "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/description/" },
+        { title: "Check if a tree is a BST or BT", link: "https://leetcode.com/problems/validate-binary-search-tree/description/"}
+      ],
+      "Graph": [
+        { title: "Number of provinces (leetcode)", link: "https://leetcode.com/problems/number-of-provinces/description/" },
+        { title: "Rotten Oranges", link: "https://leetcode.com/problems/rotting-oranges/description/" },
+        { title: "Cycle Detection in unirected Graph (bfs)", link: "https://www.geeksforgeeks.org/problems/detect-cycle-in-a-directed-graph/1"},
+
+        { title: "Bipartite Graph (DFS)", link: "https://leetcode.com/problems/is-graph-bipartite/description/" },
+        { title: "Find eventual safe states", link: "https://leetcode.com/problems/find-eventual-safe-states/description/" },
+        { title: "Cheapest flights within k stops", link: "https://leetcode.com/problems/cheapest-flights-within-k-stops/description/"},
+        { title: "Number of operations to make network connected", link:"https://leetcode.com/problems/number-of-operations-to-make-network-connected/description/"}
+        
+      ],
+      "Dynamic Programming": [
+        { title: "Climbing Stars", link: "https://leetcode.com/problems/climbing-stairs/description/" },
+        { title: "Maximum sum of non-adjacent elements (DP 5)", link: "https://leetcode.com/problems/house-robber-ii/description/" },
+
+        { title: "Grid Unique Paths : DP on Grids (DP8)", link: "https://leetcode.com/problems/unique-paths/description/" },
+        { title: "Maximum sum of non-adjacent elements (DP 5)", link: "https://leetcode.com/problems/house-robber-ii/description/" },
+        { title: "Minimum/Maximum Falling Path Sum (DP-12)", link: "https://leetcode.com/problems/minimum-falling-path-sum/description/" },
+        { title: "Target Sum (DP - 21)", link: "https://leetcode.com/problems/target-sum/description/" },
+
+
+        { title: "Longest Common Subsequence | (DP - 25)", link: "https://leetcode.com/problems/longest-common-subsequence/description/" },
+        { title: "Longest Palindromic Subsequence | (DP-28)", link: "https://leetcode.com/problems/longest-palindromic-subsequence/description/" },
+        { title: "Shortest Common Supersequence | (DP - 31)", link: "https://leetcode.com/problems/shortest-common-supersequence/description/" },
+        { title: "Best Time to Buy and Sell Stock |(DP-35)", link: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/" }
+      ]
+    };
+
+    const container = document.getElementById("container");
+
+    Object.keys(data).forEach(topic => {
+      // Create topic header
+      const topicDiv = document.createElement("div");
+      topicDiv.className = "topic";
+      topicDiv.textContent = topic;
+      
+      // Create question list
+      const questionsDiv = document.createElement("div");
+      questionsDiv.className = "questions";
+
+      data[topic].forEach(q => {
+        const qDiv = document.createElement("div");
+        qDiv.className = "question";
+        qDiv.textContent = q.title;
+        qDiv.onclick = () => window.open(q.link, "_blank");
+        questionsDiv.appendChild(qDiv);
+      });
+
+      // Toggle questions on click
+      topicDiv.onclick = () => {
+        questionsDiv.style.display = 
+          questionsDiv.style.display === "none" ? "block" : "none";
+      };
+
+      container.appendChild(topicDiv);
+      container.appendChild(questionsDiv);
+    });
+  </script>
+
+</body>
+</html>

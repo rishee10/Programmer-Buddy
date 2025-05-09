@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Online Code Compiler</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css" />
+  <style>
+    body {
+      background: #1e1e2e;
+      color: #eee;
+      font-family: monospace;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      background: #3d3d5c;
+      color: white;
+      padding: 6px 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-success {
+      background-color: #28a745;
+    }
+
+    .btn-info {
+      background-color: #17a2b8;
+    }
+
+    .CodeMirror {
+      height: 300px;
+      font-size: 14px;
+      border-radius: 5px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      border-radius: 5px;
+      border: none;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 14px;
+      margin-top: 10px;
+      background: #2a2a3c;
+      color: white;
+      resize: none;
+    }
+
+    pre {
+      margin-top: 20px;
+      background: #2a2a3c;
+      padding: 10px;
+      white-space: pre-wrap;
+      border-radius: 5px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>Online Code Compiler</h1>
+
+  <div class="toolbar">
+    <select id="language">
+      <option value="cpython-head">Python</option>
+      <option value="nodejs-head" selected>JavaScript</option>
+      <option value="gcc-head">C++</option>
+      <option value="ruby-head">Ruby</option>
+      <option value="lua-5.4.0">Lua</option>
+    </select>
+    <button id="runbtn" class="btn btn-success" onclick="submit()">Run</button>
+    <button class="btn" onclick="reset()">Reset</button>
+  </div>
+
+  <textarea id="compiler-ip">// Write your code here...</textarea>
+  <textarea id="custom-input" placeholder="Enter custom input here..."></textarea>
+
+  <pre id="msg">Press 'Run' to run code!</pre>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/ruby/ruby.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/lua/lua.min.js"></script>
+
+  <script>
+    const defaultCodes = {
+      "nodejs-head": `console.log("Hello from JavaScript");`,
+      "cpython-head": `print("Hello from Python")`,
+      "gcc-head": `#include <iostream>
+using namespace std;
+int main() {
+  string name;
+  getline(cin, name);
+  cout << "Hello, " << name << "!" << endl;
+  return 0;
+}`,
+      "ruby-head": `puts "Hello from Ruby"`,
+      "lua-5.4.0": `print("Hello from Lua")`
+    };
+
+    let lang = "nodejs-head";
+    let cm;
+
+    window.onload = () => {
+      cm = CodeMirror.fromTextArea(document.getElementById("compiler-ip"), {
+        lineNumbers: true,
+        mode: "javascript",
+        theme: "dracula",
+        lineWrapping: true,
+        autoCloseBrackets: true,
+      });
+
+      cm.setValue(defaultCodes[lang]);
+
+      document.getElementById("language").addEventListener("change", (e) => {
+        lang = e.target.value;
+        cm.setValue(defaultCodes[lang]);
+        switch (lang) {
+          case "cpython-head":
+            cm.setOption("mode", "python");
+            break;
+          case "gcc-head":
+            cm.setOption("mode", "text/x-c++src");
+            break;
+          case "ruby-head":
+            cm.setOption("mode", "ruby");
+            break;
+          case "lua-5.4.0":
+            cm.setOption("mode", "lua");
+            break;
+          default:
+            cm.setOption("mode", "javascript");
+        }
+      });
+    };
+
+    async function fetchData(code, lang, input) {
+      const langMap = {
+        "nodejs-head": 63,
+        "cpython-head": 71,
+        "gcc-head": 54,
+        "ruby-head": 72,
+        "lua-5.4.0": 64
+      };
+
+      const language_id = langMap[lang];
+
+      try {
+        const res = await fetch("https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+            "x-rapidapi-key": "219a3d1459mshf0bf56a034c7603p122d4djsn28a8baeada2e" // Actual RapidAPI key
+          },
+          body: JSON.stringify({
+            source_code: code,
+            language_id: language_id,
+            stdin: input
+          })
+        });
+
+        const data = await res.json();
+
+        const output = data.stdout || data.stderr || data.compile_output || "No output.";
+        document.getElementById("msg").innerHTML = output
+          .replaceAll("\n", "<br>")
+          .replaceAll(" ", "&nbsp;");
+      } catch (error) {
+        document.getElementById("msg").innerText = "Error: " + error.message;
+      } finally {
+        document.getElementById("runbtn").innerText = "Run";
+        document.getElementById("runbtn").classList = "btn btn-success";
+      }
+    }
+
+    async function submit() {
+      document.getElementById("runbtn").innerText = "Compiling...";
+      document.getElementById("runbtn").classList = "btn btn-info";
+      const code = cm.getValue();
+      const input = document.getElementById("custom-input").value;
+      await fetchData(code, lang, input);
+    }
+
+    function reset() {
+      cm.setValue("");
+      document.getElementById("custom-input").value = "";
+      document.getElementById("msg").innerText = "Press 'Run' to run code!";
+    }
+  </script>
+</body>
+</html>

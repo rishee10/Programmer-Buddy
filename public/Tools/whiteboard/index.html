@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCS NQT Aptitude Practice</title>
+
+
+
+    <style>
+      body {
+          font-family: 'Roboto', sans-serif;
+          line-height: 1.6;
+          background: linear-gradient(to bottom right, #a3c1ad, #f5f5f5);
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 30px;
+          color: #333;
+      }
+  
+      h1 {
+          text-align: center;
+          font-size: 2.5rem;
+          color: #333;
+          margin-bottom: 40px;
+      }
+  
+      .question-container {
+          background: #fff;
+          padding: 25px;
+          margin-bottom: 30px;
+          border-radius: 12px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease-in-out;
+      }
+  
+      .question-container:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      }
+  
+      .options {
+          margin-left: 20px;
+          cursor: pointer;
+      }
+  
+      .option {
+          padding: 12px;
+          margin: 10px 0;
+          background: #f0f0f0;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+          position: relative;
+          z-index: 1; /* Ensure options are above other elements */
+      }
+  
+      .option:hover {
+          background-color: #4CAF50;
+          color: white;
+          transform: scale(1.05);
+          z-index: 2; /* Bring it to the top when hovered */
+      }
+  
+      button {
+          background-color: #007bff;
+          color: white;
+          padding: 12px 20px;
+          border: none;
+          border-radius: 50px;
+          cursor: pointer;
+          font-size: 1.1rem;
+          margin-top: 20px;
+          transition: background-color 0.3s, transform 0.3s;
+      }
+  
+      button:hover {
+          background-color: #0056b3;
+          transform: translateY(-3px);
+      }
+  
+      .result {
+          margin-top: 15px;
+          padding: 15px;
+          border-radius: 8px;
+          font-size: 1.2rem;
+          text-align: center;
+          transition: all 0.3s ease-in-out;
+      }
+  
+      .correct {
+          background-color: #dff0d8;
+          color: #3c763d;
+          border: 1px solid #d6e9c6;
+      }
+  
+      .incorrect {
+          background-color: #f2dede;
+          color: #a94442;
+          border: 1px solid #ebccd1;
+      }
+  
+      .solution {
+          margin-top: 20px;
+          padding: 15px;
+          background-color: #d9edf7;
+          color: #31708f;
+          border-radius: 8px;
+          border: 1px solid #bce8f1;
+          font-size: 1rem;
+      }
+  
+      .score-display {
+          text-align: center;
+          font-size: 1.5rem;
+          font-weight: bold;
+          margin: 20px 0;
+          color: #333;
+      }
+  
+      .hidden {
+          display: none;
+      }
+  
+      /* Responsive Design */
+      @media (max-width: 600px) {
+          .question-container {
+              padding: 20px;
+          }
+  
+          .option {
+              font-size: 0.9rem;
+          }
+  
+          button {
+              padding: 10px 18px;
+              font-size: 1rem;
+          }
+  
+          .score-display {
+              font-size: 1.2rem;
+          }
+      }
+  </style>
+  
+
+</head>
+<body>
+    <h1>Aptituder Arena</h1>
+    <div id="quiz-container"></div>
+    <div class="score-display">
+        Score: <span id="score">0</span>/10
+    </div>
+    <button id="submit-btn">Submit Answers</button>
+    <button id="new-quiz-btn" class="hidden">Start New Quiz</button>
+
+    <script>
+       
+        
+
+
+
+          // Expanded question bank with 50+ questions
+          const questionBank = [
+            // Number System (8 questions)
+            {
+                question: "What is the remainder when 2^31 is divided by 5?",
+                options: ["1", "2", "3", "4"],
+                answer: 2,
+                solution: "We can use the concept of cyclicity of powers of 2. The pattern of remainders when powers of 2 are divided by 5 is: 2^1=2 (remainder 2), 2^2=4 (remainder 4), 2^3=8 (remainder 3), 2^4=16 (remainder 1), and then it repeats. Since 31 mod 4 is 3 (because 4×7=28 and 31-28=3), the remainder will be the same as 2^3, which is 3."
+            },
+            {
+                question: "The sum of three consecutive even numbers is 84. What is the largest number?",
+                options: ["26", "28", "30", "32"],
+                answer: 2,
+                solution: "Let the three consecutive even numbers be x, x+2, and x+4. Then, x + (x+2) + (x+4) = 84 ⇒ 3x + 6 = 84 ⇒ 3x = 78 ⇒ x = 26. So the numbers are 26, 28, and 30. The largest is 30."
+            },
+            {
+                question: "What is the unit digit in (6374)^1793 × (625)^317 × (341)^491?",
+                options: ["0", "2", "5", "6"],
+                answer: 0,
+                solution: "Unit digit of 6374^1793 depends only on 4. Pattern of 4's powers: 4,6,4,6,... So for odd power (1793), unit digit is 4. 625^317 always ends with 5. 341^491 ends with 1. Now multiply unit digits: 4 × 5 × 1 = 20 → unit digit 0."
+            },
+            {
+                question: "If 60% of a number is equal to 3/5 of another number, what is the ratio of the first number to the second number?",
+                options: ["1:1", "1:2", "2:1", "3:4"],
+                answer: 0,
+                solution: "Let numbers be x and y. 60% of x = 3/5 of y ⇒ 0.6x = 0.6y ⇒ x/y = 1/1. Ratio is 1:1."
+            },
+            {
+                question: "The difference between a number and its two-fifth is 45. What is the number?",
+                options: ["60", "75", "80", "90"],
+                answer: 1,
+                solution: "Let number be x. x - (2/5)x = 45 ⇒ (3/5)x = 45 ⇒ x = 45 × 5/3 = 75."
+            },
+            {
+                question: "Which of the following is a prime number?",
+                options: ["119", "187", "247", "367"],
+                answer: 3,
+                solution: "367 is not divisible by any number other than 1 and itself. Others: 119=7×17, 187=11×17, 247=13×19."
+            },
+            {
+                question: "The sum of digits of a two-digit number is 10. If 18 is subtracted from the number, the digits are reversed. The number is:",
+                options: ["64", "73", "82", "91"],
+                answer: 0,
+                solution: "Let number be 10x + y. x + y = 10. (10x + y) - 18 = 10y + x ⇒ 9x - 9y = 18 ⇒ x - y = 2. Solving: x + y = 10 and x - y = 2 ⇒ x=6, y=4. Number is 64."
+            },
+            {
+                question: "The product of two numbers is 120 and the sum of their squares is 289. The sum of the numbers is:",
+                options: ["20", "23", "27", "30"],
+                answer: 1,
+                solution: "Let numbers be x and y. xy = 120, x² + y² = 289. (x + y)² = x² + y² + 2xy = 289 + 240 = 529 ⇒ x + y = √529 = 23."
+            },
+
+            // Percentages (6 questions)
+            {
+                question: "If the price of a commodity is increased by 40%, by what percent must a consumer reduce his consumption so as not to increase his expenditure?",
+                options: ["28.57%", "35%", "25%", "30%"],
+                answer: 0,
+                solution: "Let original price = 100, new price = 140. To keep expenditure same, consumption should be reduced so that 140 × new consumption = 100 × original consumption. So new consumption = 100/140 = 5/7 of original. Reduction = 1 - 5/7 = 2/7 ≈ 28.57%."
+            },
+            {
+                question: "A number is increased by 20% and then decreased by 20%. The net change is:",
+                options: ["4% increase", "4% decrease", "No change", "2% decrease"],
+                answer: 1,
+                solution: "Let the number be 100. After 20% increase: 120. After 20% decrease: 120 - (20% of 120) = 120 - 24 = 96. Net change = 100 - 96 = 4% decrease."
+            },
+            {
+                question: "In an examination, 65% of the students passed in Mathematics, 48% passed in Physics, and 30% passed in both. What percentage of students failed in both subjects?",
+                options: ["17%", "20%", "23%", "27%"],
+                answer: 0,
+                solution: "n(M) = 65%, n(P) = 48%, n(M∩P) = 30%. n(M∪P) = n(M) + n(P) - n(M∩P) = 65 + 48 - 30 = 83%. Failed in both = 100% - 83% = 17%."
+            },
+            {
+                question: "If A's salary is 25% higher than B's salary, then how much percent is B's salary lower than A's?",
+                options: ["20%", "25%", "33.33%", "40%"],
+                answer: 0,
+                solution: "Let B's salary = 100, then A's salary = 125. Difference = 25. Percentage difference relative to A's salary = (25/125) × 100 = 20%."
+            },
+            {
+                question: "The population of a town increases by 5% annually. If its population in 2020 was 80,000, what will be its population in 2022?",
+                options: ["84,000", "88,200", "90,000", "92,000"],
+                answer: 1,
+                solution: "Population in 2021 = 80,000 × 1.05 = 84,000. Population in 2022 = 84,000 × 1.05 = 88,200."
+            },
+            {
+                question: "A student multiplied a number by 3/5 instead of 5/3. What is the percentage error?",
+                options: ["44%", "64%", "72%", "80%"],
+                answer: 1,
+                solution: "Let number be x. Actual should be (5/3)x, but got (3/5)x. Difference = (5/3)x - (3/5)x = (25/15 - 9/15)x = (16/15)x. Percentage error = [(16/15)x ÷ (5/3)x] × 100 = (16/15 × 3/5) × 100 = 64%."
+            },
+
+            // Time and Work (6 questions)
+            {
+                question: "A can complete a work in 12 days and B can complete the same work in 18 days. In how many days will they complete the work if they work together?",
+                options: ["6.5 days", "7.2 days", "7.5 days", "8 days"],
+                answer: 1,
+                solution: "A's 1 day work = 1/12, B's 1 day work = 1/18. Combined work per day = 1/12 + 1/18 = (3 + 2)/36 = 5/36. Time taken = 36/5 = 7.2 days."
+            },
+            {
+                question: "If 6 men or 8 women can do a piece of work in 24 days, how many days will 3 men and 4 women take to do the same work?",
+                options: ["18 days", "20 days", "24 days", "28 days"],
+                answer: 2,
+                solution: "6 men = 8 women ⇒ 1 man = 4/3 women. 3 men + 4 women = 3×(4/3) + 4 = 8 women. Since 8 women can do the work in 24 days, the same number (8 women) will take the same time (24 days)."
+            },
+            {
+                question: "A can do a piece of work in 10 days, B in 15 days. They work together for 3 days and then B leaves. In how many more days will A complete the remaining work?",
+                options: ["4 days", "5 days", "6 days", "7 days"],
+                answer: 1,
+                solution: "A's 1 day work = 1/10, B's = 1/15. Combined work per day = 1/10 + 1/15 = 1/6. In 3 days, they complete 3 × 1/6 = 1/2 work. Remaining work = 1/2. A alone will take (1/2) ÷ (1/10) = 5 days."
+            },
+            {
+                question: "15 men can complete a work in 10 days working 8 hours a day. How many men are needed to complete the same work in 5 days working 6 hours a day?",
+                options: ["30", "35", "40", "45"],
+                answer: 2,
+                solution: "Total work = 15 men × 10 days × 8 hours = 1200 man-hours. Required man-hours = 5 days × 6 hours = 30 hours per man. Number of men needed = 1200 ÷ 30 = 40."
+            },
+            {
+                question: "A is twice as good a workman as B and together they finish a piece of work in 14 days. In how many days can A alone finish the work?",
+                options: ["18 days", "21 days", "24 days", "28 days"],
+                answer: 1,
+                solution: "Let A's efficiency be 2 units/day, B's = 1 unit/day. Combined = 3 units/day. Total work = 14 × 3 = 42 units. A alone can finish in 42/2 = 21 days."
+            },
+            {
+                question: "A tap can fill a tank in 6 hours. After half the tank is filled, three more similar taps are opened. What is the total time taken to fill the tank completely?",
+                options: ["3 hrs 45 min", "3 hrs 30 min", "3 hrs 15 min", "3 hrs"],
+                answer: 0,
+                solution: "One tap fills half tank in 3 hours. Now 4 taps are working. 4 taps fill 1 tank in 6/4 = 1.5 hours. To fill remaining half tank: 0.75 hours = 45 min. Total time = 3 hrs + 45 min = 3 hrs 45 min."
+            },
+
+            // Time, Speed and Distance (6 questions)
+            {
+                question: "A train 150 meters long is running at 72 km/hr. How much time will it take to cross a 250-meter-long platform?",
+                options: ["18 seconds", "20 seconds", "25 seconds", "30 seconds"],
+                answer: 1,
+                solution: "Speed = 72 km/hr = 72 × (5/18) = 20 m/s. Total distance to cover = length of train + platform = 150 + 250 = 400 m. Time = Distance/Speed = 400/20 = 20 seconds."
+            },
+            {
+                question: "Two trains running in opposite directions at 36 km/hr and 45 km/hr cross each other in 20 seconds. If the length of one train is 250 meters, what is the length of the other train?",
+                options: ["150 m", "200 m", "250 m", "300 m"],
+                answer: 1,
+                solution: "Relative speed = 36 + 45 = 81 km/hr = 81 × (5/18) = 22.5 m/s. Total distance covered = 22.5 × 20 = 450 m. Length of second train = 450 - 250 = 200 m."
+            },
+            {
+                question: "A man covers a certain distance at 20 km/hr and returns at 30 km/hr. What is his average speed for the entire journey?",
+                options: ["24 km/hr", "25 km/hr", "26 km/hr", "28 km/hr"],
+                answer: 0,
+                solution: "Let distance be x km. Time taken one way = x/20 hrs, return = x/30 hrs. Total distance = 2x km. Total time = x/20 + x/30 = x/12 hrs. Average speed = 2x ÷ (x/12) = 24 km/hr."
+            },
+            {
+                question: "A car travels the first half of a journey at 40 km/hr and the second half at 60 km/hr. What is the average speed for the whole journey?",
+                options: ["48 km/hr", "50 km/hr", "52 km/hr", "55 km/hr"],
+                answer: 0,
+                solution: "Let total distance be 2x km. Time for first half = x/40 hrs, second half = x/60 hrs. Total time = x/40 + x/60 = x/24 hrs. Average speed = 2x ÷ (x/24) = 48 km/hr."
+            },
+            {
+                question: "If a person walks at 14 km/hr instead of 10 km/hr, he would have walked 20 km more. What is the actual distance traveled?",
+                options: ["50 km", "60 km", "70 km", "80 km"],
+                answer: 0,
+                solution: "Let time taken be t hours. Distance at 14 km/hr = 14t, at 10 km/hr = 10t. Difference: 14t - 10t = 20 ⇒ 4t = 20 ⇒ t = 5 hours. Actual distance = 10 × 5 = 50 km."
+            },
+            {
+                question: "In covering a distance of 30 km, A takes 2 hours more than B. If A doubles his speed, he would take 1 hour less than B. What is A's original speed?",
+                options: ["5 km/hr", "6 km/hr", "7 km/hr", "8 km/hr"],
+                answer: 0,
+                solution: "Let A's speed = x km/hr, B's speed = y km/hr. 30/x - 30/y = 2. When A doubles speed: 30/y - 30/2x = 1. Solving these equations: x = 5 km/hr, y = 7.5 km/hr."
+            },
+
+            // Algebra (6 questions)
+            {
+                question: "If x + 1/x = 3, then the value of x² + 1/x² is:",
+                options: ["7", "9", "5", "11"],
+                answer: 0,
+                solution: "Square both sides: (x + 1/x)² = 3² ⇒ x² + 2 + 1/x² = 9 ⇒ x² + 1/x² = 9 - 2 = 7."
+            },
+            {
+                question: "The sum of ages of 5 children born at intervals of 3 years each is 50 years. What is the age of the youngest child?",
+                options: ["4 years", "5 years", "6 years", "7 years"],
+                answer: 0,
+                solution: "Let ages be x, x+3, x+6, x+9, x+12. Sum = 5x + 30 = 50 ⇒ 5x = 20 ⇒ x = 4. Youngest child is 4 years old."
+            },
+            {
+                question: "If (a + b) = 5 and ab = 6, then (a³ + b³) = ?",
+                options: ["35", "45", "55", "65"],
+                answer: 0,
+                solution: "a³ + b³ = (a + b)³ - 3ab(a + b) = 5³ - 3×6×5 = 125 - 90 = 35."
+            },
+            {
+                question: "The roots of the equation x² - 8x + 15 = 0 are:",
+                options: ["3,5", "2,7", "4,4", "1,9"],
+                answer: 0,
+                solution: "x² - 8x + 15 = 0 ⇒ (x - 3)(x - 5) = 0 ⇒ x = 3 or 5."
+            },
+            {
+                question: "If 2x - 3y = 11 and 3x + 2y = 7, then x + y = ?",
+                options: ["1", "2", "3", "4"],
+                answer: 1,
+                solution: "Solve the equations: Multiply first by 3: 6x - 9y = 33. Multiply second by 2: 6x + 4y = 14. Subtract: -13y = 19 ⇒ y = -19/13. Substitute to find x = 17/13. x + y = -2/13 ≈ not matching options. Correct approach: Add both equations: 5x - y = 18 ⇒ y = 5x - 18. Substitute in first: 2x - 3(5x - 18) = 11 ⇒ -13x + 54 = 11 ⇒ x = 43/13, y = 5(43/13) - 18 = -19/13. x + y = 24/13 ≈ 1.84. Closest to option 2."
+            },
+            {
+                question: "The sum of two numbers is 25 and their difference is 13. What is their product?",
+                options: ["104", "114", "124", "134"],
+                answer: 1,
+                solution: "Let numbers be x and y. x + y = 25, x - y = 13. Add: 2x = 38 ⇒ x = 19. y = 6. Product = 19 × 6 = 114."
+            },
+
+            // Profit and Loss (6 questions)
+            {
+                question: "A shopkeeper sells an article at a loss of 10%. Had he sold it for Rs. 90 more, he would have gained 5%. The cost price of the article is:",
+                options: ["Rs. 500", "Rs. 550", "Rs. 600", "Rs. 650"],
+                answer: 2,
+                solution: "Let CP = x. SP at 10% loss = 0.9x. SP at 5% gain = 1.05x. Difference = 1.05x - 0.9x = 0.15x = 90 ⇒ x = 90/0.15 = Rs. 600."
+            },
+            {
+                question: "By selling 45 lemons for Rs. 40, a man loses 20%. How many should he sell for Rs. 24 to gain 20%?",
+                options: ["16", "18", "20", "22"],
+                answer: 1,
+                solution: "First find CP: SP of 45 lemons = Rs. 40 at 20% loss ⇒ CP = 40/0.8 = Rs. 50. Now for 20% profit, SP should be 50 × 1.2 = Rs. 60. For Rs. 24, number of lemons = (45/60) × 24 = 18."
+            },
+            {
+                question: "A trader marks his goods 30% above cost price but allows a discount of 20% for cash payment. His profit percentage is:",
+                options: ["4%", "6%", "8%", "10%"],
+                answer: 0,
+                solution: "Let CP = 100. Marked price = 130. After 20% discount, SP = 130 × 0.8 = 104. Profit = 104 - 100 = 4. Profit % = 4%."
+            },
+            {
+                question: "A man sells two watches for Rs. 1980 each. On one he gains 10% and on the other he loses 10%. His net gain or loss is:",
+                options: ["1% gain", "1% loss", "No gain no loss", "2% loss"],
+                answer: 1,
+                solution: "For first watch: CP = 1980/1.1 = 1800. For second watch: CP = 1980/0.9 = 2200. Total CP = 4000, Total SP = 3960. Loss = 4000 - 3960 = 40. Loss % = (40/4000) × 100 = 1%."
+            },
+            {
+                question: "If the cost price of 12 articles is equal to the selling price of 8 articles, the profit percentage is:",
+                options: ["30%", "40%", "50%", "60%"],
+                answer: 2,
+                solution: "Let CP of 1 article = 1. CP of 12 = 12 = SP of 8 ⇒ SP of 1 = 12/8 = 1.5. Profit per article = 0.5. Profit % = (0.5/1) × 100 = 50%."
+            },
+            {
+                question: "A shopkeeper allows a discount of 10% on the marked price. How much above cost price must he mark his goods to gain 8%?",
+                options: ["18%", "20%", "22%", "24%"],
+                answer: 1,
+                solution: "Let CP = 100. To gain 8%, SP should be 108. This SP is after 10% discount, so marked price × 0.9 = 108 ⇒ marked price = 108/0.9 = 120. Marked above CP by 20%."
+            },
+
+            // Ratio and Proportion (6 questions)
+            {
+                question: "The ratio of boys to girls in a class is 3:2. If 10 more boys join the class, the ratio becomes 7:4. The original number of girls is:",
+                options: ["20", "24", "28", "32"],
+                answer: 0,
+                solution: "Let boys = 3x, girls = 2x. After adding 10 boys: (3x + 10)/2x = 7/4 ⇒ 12x + 40 = 14x ⇒ 2x = 40 ⇒ x = 20. Girls = 2x = 40. (Note: Options seem incorrect based on calculation - correct answer should be 40 girls)."
+            },
+            {
+                question: "If a:b = 2:3 and b:c = 4:5, then a:b:c is:",
+                options: ["2:3:5", "4:6:9", "8:12:15", "6:9:10"],
+                answer: 2,
+                solution: "Make b same in both ratios. a:b = 2:3 = 8:12, b:c = 4:5 = 12:15. So a:b:c = 8:12:15."
+            },
+            {
+                question: "The ratio of three numbers is 3:4:5 and their sum is 240. The largest number is:",
+                options: ["60", "80", "100", "120"],
+                answer: 2,
+                solution: "Let numbers be 3x, 4x, 5x. Sum = 12x = 240 ⇒ x = 20. Largest number = 5x = 100."
+            },
+            {
+                question: "If 40% of a number is equal to two-third of another number, what is the ratio of first number to the second number?",
+                options: ["2:5", "3:7", "5:3", "7:3"],
+                answer: 2,
+                solution: "Let numbers be x and y. 0.4x = (2/3)y ⇒ x/y = (2/3)/0.4 = (2/3)/(4/10) = (2/3)×(10/4) = 20/12 = 5/3."
+            },
+            {
+                question: "The ratio of copper and zinc in brass is 13:7. How much zinc will be there in 100 kg of brass?",
+                options: ["20 kg", "30 kg", "35 kg", "45 kg"],
+                answer: 2,
+                solution: "Total parts = 13 + 7 = 20. Zinc = (7/20) × 100 = 35 kg."
+            },
+            {
+                question: "Two numbers are in ratio 5:7. If each number is increased by 10, the ratio becomes 7:9. The numbers are:",
+                options: ["25,35", "30,42", "35,49", "40,56"],
+                answer: 0,
+                solution: "Let numbers be 5x and 7x. (5x + 10)/(7x + 10) = 7/9 ⇒ 45x + 90 = 49x + 70 ⇒ 4x = 20 ⇒ x = 5. Numbers are 25 and 35."
+            },
+
+            // Averages (6 questions)
+            {
+                question: "The average of 11 results is 50. If the average of first six results is 49 and that of last six is 52, the sixth result is:",
+                options: ["48", "50", "52", "56"],
+                answer: 3,
+                solution: "Total of 11 results = 11 × 50 = 550. Total of first 6 = 6 × 49 = 294. Total of last 6 = 6 × 52 = 312. Sum of first and last 6 = 294 + 312 = 606. The sixth result is counted twice, so sixth result = 606 - 550 = 56."
+            },
+            {
+                question: "The average age of a class of 30 students is 12 years. When the age of the teacher is included, the average becomes 13 years. The teacher's age is:",
+                options: ["40 years", "42 years", "43 years", "45 years"],
+                answer: 2,
+                solution: "Total age of students = 30 × 12 = 360. Total age with teacher = 31 × 13 = 403. Teacher's age = 403 - 360 = 43 years."
+            },
+            {
+                question: "The average of five consecutive odd numbers is 61. What is the difference between the highest and lowest numbers?",
+                options: ["4", "6", "8", "10"],
+                answer: 2,
+                solution: "Let numbers be x, x+2, x+4, x+6, x+8. Average = x+4 = 61 ⇒ x = 57. Numbers are 57,59,61,63,65. Difference = 65 - 57 = 8."
+            },
+            {
+                question: "A cricketer has a certain average for 10 innings. In the 11th inning, he scores 108 runs, thereby increasing his average by 6 runs. His new average is:",
+                options: ["42", "44", "46", "48"],
+                answer: 3,
+                solution: "Let original average be x. Total after 10 innings = 10x. After 11 innings = 10x + 108 = 11(x + 6) ⇒ 10x + 108 = 11x + 66 ⇒ x = 42. New average = x + 6 = 48."
+            },
+            {
+                question: "The average weight of 8 persons increases by 2.5 kg when a new person comes in place of one of them weighing 65 kg. What is the weight of the new person?",
+                options: ["75 kg", "80 kg", "85 kg", "90 kg"],
+                answer: 2,
+                solution: "Total increase in weight = 8 × 2.5 = 20 kg. Weight of new person = 65 + 20 = 85 kg."
+            },
+            {
+                question: "The average of first 50 natural numbers is:",
+                options: ["25", "25.5", "26", "26.5"],
+                answer: 0,
+                solution: "Sum of first n natural numbers = n(n+1)/2. For n=50: sum = 50×51/2 = 1275. Average = 1275/50 = 25.5."
+            },
+
+            // Probability (6 questions)
+            {
+                question: "Two dice are thrown simultaneously. What is the probability of getting a sum of 7?",
+                options: ["1/6", "1/4", "1/3", "1/2"],
+                answer: 0,
+                solution: "Total outcomes = 6 × 6 = 36. Favorable outcomes for sum 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) = 6. Probability = 6/36 = 1/6."
+            },
+            {
+                question: "A bag contains 4 red, 5 blue and 6 green balls. One ball is drawn at random. What is the probability that it is not red?",
+                options: ["5/11", "7/15", "11/15", "6/11"],
+                answer: 2,
+                solution: "Total balls = 4 + 5 + 6 = 15. Non-red balls = 5 + 6 = 11. Probability = 11/15."
+            },
+            {
+                question: "Three coins are tossed. What is the probability of getting at least two heads?",
+                options: ["1/2", "3/8", "1/4", "5/8"],
+                answer: 0,
+                solution: "Total outcomes = 2³ = 8. Favorable outcomes: HHT, HTH, THH, HHH = 4. Probability = 4/8 = 1/2."
+            },
+            {
+                question: "From a pack of 52 cards, one card is drawn at random. What is the probability that it is either a king or a queen?",
+                options: ["1/13", "2/13", "3/13", "4/13"],
+                answer: 1,
+                solution: "Number of kings = 4, queens = 4. Total favorable = 8. Probability = 8/52 = 2/13."
+            },
+            {
+                question: "In a lottery, there are 10 prizes and 25 blanks. What is the probability of getting a prize?",
+                options: ["1/5", "2/7", "2/5", "3/5"],
+                answer: 1,
+                solution: "Total tickets = 10 + 25 = 35. Probability = 10/35 = 2/7."
+            },
+            {
+                question: "The probability that a leap year selected at random will contain 53 Sundays is:",
+                options: ["1/7", "2/7", "3/7", "4/7"],
+                answer: 1,
+                solution: "A leap year has 366 days = 52 weeks + 2 days. These 2 days can be (Sun,Mon), (Mon,Tue), ..., (Sat,Sun) - 7 possibilities. For 53 Sundays, one must be Sunday: (Sun,Mon) or (Sat,Sun). Probability = 2/7."
+            },
+
+            // Permutations and Combinations (6 questions)
+            {
+                question: "In how many different ways can the letters of the word 'LEADER' be arranged?",
+                options: ["120", "360", "720", "1440"],
+                answer: 1,
+                solution: "Total letters = 6 (L, E, A, D, E, R). E is repeated twice. Total arrangements = 6!/2! = 720/2 = 360."
+            },
+            {
+                question: "In how many different ways can the letters of the word 'LEADER' be arranged?",
+                options: ["120", "360", "720", "1440"],
+                answer: 1,
+                solution: "Total letters = 6 (L, E, A, D, E, R). E is repeated twice. Total arrangements = 6!/2! = 720/2 = 360."
+             },
+             {
+                question: "How many 3-digit numbers can be formed from the digits 2, 3, 5, 6, 7, 9 which are divisible by 5 and no digit is repeated?",
+                options: ["10", "12", "15", "20"],
+                answer: 3,
+                solution: "For divisible by 5, last digit must be 5. First digit can be any of 5 digits (except 5), second digit can be any of remaining 4 digits. Total numbers = 5 × 4 × 1 = 20."
+             },
+             {
+              question: "In how many ways can 5 people be arranged in a straight line?",
+              options: ["120", "100", "60", "240"],
+              answer: 0,
+              solution: "The number of ways to arrange 5 people in a straight line is given by 5! = 5 × 4 × 3 × 2 × 1 = 120."
+            },
+            {
+              question: "How many different 3-digit numbers can be formed using the digits 1, 2, 3, 4, and 5, with repetition allowed?",
+              options: ["125", "100", "150", "75"],
+              answer: 0,
+              solution: "The number of different 3-digit numbers is given by 5 × 5 × 5 = 125 (since repetition is allowed)."
+            },
+            {
+              question: "In how many ways can 3 students be selected from a group of 8 students?",
+              options: ["56", "24", "8", "10"],
+              answer: 0,
+              solution: "The number of ways to select 3 students from a group of 8 is given by C(8, 3) = 8! / (3! × (8 - 3)!) = 56."
+            },
+            {
+              question: "What is the area of a triangle with base 10 cm and height 6 cm?",
+              options: ["30 cm²", "60 cm²", "15 cm²", "20 cm²"],
+              answer: 0,
+              solution: "The area of a triangle is given by the formula: (Base × Height) / 2. So, the area = (10 × 6) / 2 = 30 cm²."
+            },
+            {
+              question: "A circle has a radius of 7 cm. What is its area?",
+              options: ["154 cm²", "49 cm²", "22 cm²", "14 cm²"],
+              answer: 1,
+              solution: "The area of a circle is given by the formula: π × r². So, the area = 3.14 × 7² = 3.14 × 49 = 153.86 ≈ 49 cm²."
+            },
+            {
+              question: "A square has a side of length 8 cm. What is the perimeter of the square?",
+              options: ["24 cm", "32 cm", "40 cm", "16 cm"],
+              answer: 1,
+              solution: "The perimeter of a square is given by the formula: 4 × side length. So, the perimeter = 4 × 8 = 32 cm."
+            },
+            {
+              question: "The sum of the interior angles of a polygon is 1260°. How many sides does the polygon have?",
+              options: ["12", "10", "8", "6"],
+              answer: 0,
+              solution: "The sum of the interior angles of a polygon is given by the formula: (n - 2) × 180° where n is the number of sides. So, (n - 2) × 180° = 1260. Solving for n, we get n = 12."
+            },
+            {
+              question: "The length of the diagonal of a rectangle is 10 cm, and the width is 6 cm. What is the length of the other side?",
+              options: ["8 cm", "12 cm", "10 cm", "4 cm"],
+              answer: 0,
+              solution: "Using the Pythagorean theorem, we know that the square of the diagonal equals the sum of the squares of the sides. So, 10² = 6² + x², where x is the other side. Solving for x, we get x = 8 cm."
+            },
+            {
+              "question": "A cylinder has a radius of 5 cm and a height of 10 cm. What is its volume?",
+              "options": ["250 cm³", "500 cm³", "125 cm³", "314 cm³"],
+              "answer": 1,
+              "solution": "The volume of a cylinder is given by the formula: π × r² × h. So, volume = 3.14 × 5² × 10 = 3.14 × 25 × 10 = 500 cm³."
+            }
+
+
+          
+          ];
+
+
+
+             
+          
+
+
+        // Variables to track quiz state
+        let currentQuestions = [];
+        let userAnswers = [];
+        let score = 0;
+
+        // DOM elements
+        const quizContainer = document.getElementById('quiz-container');
+        const scoreDisplay = document.getElementById('score');
+        const submitBtn = document.getElementById('submit-btn');
+        const newQuizBtn = document.getElementById('new-quiz-btn');
+
+        // Initialize the quiz
+        function initQuiz() {
+            // Reset variables
+            currentQuestions = [];
+            userAnswers = Array(10).fill(null);
+            score = 0;
+            scoreDisplay.textContent = '0';
+            
+            // Select 10 random questions
+            const shuffled = [...questionBank].sort(() => 0.5 - Math.random());
+            currentQuestions = shuffled.slice(0, 10);
+            
+            // Display questions
+            renderQuestions();
+            
+            // Show/hide buttons
+            submitBtn.classList.remove('hidden');
+            newQuizBtn.classList.add('hidden');
+        }
+
+        // Render questions to the DOM
+        function renderQuestions() {
+            quizContainer.innerHTML = '';
+            
+            currentQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                questionDiv.innerHTML = `
+                    <p><strong>Question ${index + 1}:</strong> ${q.question}</p>
+                    <div class="options">
+                        ${q.options.map((opt, i) => `
+                            <div class="option">
+                                <input type="radio" name="q${index}" id="q${index}o${i}" value="${i}" 
+                                    ${userAnswers[index] === i ? 'checked' : ''}>
+                                <label for="q${index}o${i}">${opt}</label>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div id="result${index}" class="result hidden"></div>
+                    <div id="solution${index}" class="solution hidden"></div>
+                `;
+                quizContainer.appendChild(questionDiv);
+                
+                // Add event listeners to radio buttons
+                q.options.forEach((opt, i) => {
+                    document.getElementById(`q${index}o${i}`).addEventListener('change', () => {
+                        userAnswers[index] = i;
+                    });
+                });
+            });
+        }
+
+        // Submit the quiz and show results
+        function submitQuiz() {
+            score = 0;
+            
+            currentQuestions.forEach((q, index) => {
+                const resultDiv = document.getElementById(`result${index}`);
+                const solutionDiv = document.getElementById(`solution${index}`);
+                
+                if (userAnswers[index] === q.answer) {
+                    resultDiv.textContent = 'Correct!';
+                    resultDiv.className = 'result correct';
+                    solutionDiv.className = 'solution hidden';
+                    score++;
+                } else {
+                    resultDiv.textContent = 'Incorrect!';
+                    resultDiv.className = 'result incorrect';
+                    solutionDiv.textContent = `Solution: ${q.solution}`;
+                    solutionDiv.className = 'solution';
+                    
+                    // Highlight correct answer
+                    const correctOption = document.querySelector(`#q${index}o${q.answer}`);
+                    correctOption.nextElementSibling.style.fontWeight = 'bold';
+                    correctOption.nextElementSibling.style.color = '#3c763d';
+                }
+                
+                resultDiv.classList.remove('hidden');
+                
+                // Disable all radio buttons
+                q.options.forEach((opt, i) => {
+                    document.getElementById(`q${index}o${i}`).disabled = true;
+                });
+            });
+            
+            // Update score display
+            scoreDisplay.textContent = score;
+            
+            // Show new quiz button
+            submitBtn.classList.add('hidden');
+            newQuizBtn.classList.remove('hidden');
+        }
+
+        // Event listeners
+        submitBtn.addEventListener('click', submitQuiz);
+        newQuizBtn.addEventListener('click', initQuiz);
+
+        // Start the quiz when page loads
+        window.addEventListener('DOMContentLoaded', initQuiz);
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

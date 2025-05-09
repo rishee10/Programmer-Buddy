@@ -1,0 +1,297 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Probox - Dictionary</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="dictionary.js" defer></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="../../assets/bootstrap/css/bootstrap.min.css"
+    />
+    <script src="../../assets/bootstrap/js/bootstrap.min.js"></script>
+  </head>
+  <body style="background-color: #ffca93">
+    <div
+      id="main-container"
+      class="container"
+      style="text-align: center; padding: 20px"
+    >
+      <h1 style="text-align: center; padding: 15px" id="main-title">
+        Dictionary
+      </h1>
+      <input
+        type="search"
+        style="
+          border-style: none;
+          width: 50%;
+          height: 50px;
+          border-radius: 15px;
+          padding-left: 2%;
+          padding-right: 2%;
+        "
+        id="vocab-search-bar"
+        placeholder="Search..."
+      />
+      <section
+        style="
+          min-height: 300px;
+          background: white;
+          padding: 10px;
+          margin-top: 30px;
+          margin-bottom: 20px;
+          margin-left: 30px;
+          margin-right: 30px;
+        "
+        id="result-container"
+      >
+        <h1 id="word"></h1>
+        <p id="result"></p>
+        <div id="definition-container"></div>
+      </section>
+    </div>
+  </body>
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Code Complexity Analyzer - Improved</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #eef2f3;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px 30px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h2, h3 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    label {
+      font-weight: 600;
+      margin-top: 10px;
+      display: inline-block;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 10px;
+      font-size: 15px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      transition: all 0.3s ease-in-out;
+    }
+
+    select:focus, button:focus, textarea:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 6px rgba(52, 152, 219, 0.3);
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    textarea {
+      width: 100%;
+      height: 300px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+      resize: vertical;
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #fdfdfd;
+      border-radius: 8px;
+      border-left: 5px solid #3498db;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .complexity {
+      font-weight: bold;
+      color: #34495e;
+    }
+
+    .warning {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 14px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>🔍 Code Complexity Analyzer</h2>
+
+    <label for="language">Select Language:</label>
+    <select id="language">
+      <option value="java">Java</option>
+      <option value="python">Python</option>
+      <option value="cpp">C++</option>
+    </select>
+
+    <label for="code">Paste your code below:</label>
+    <textarea id="code" placeholder="Paste your code here..."></textarea>
+
+    <button onclick="analyzeCode()">Analyze</button>
+
+    <h3>📊 Result</h3>
+    <div id="result"></div>
+  </div>
+
+  
+
+  <script>
+    function analyzeCode() {
+      const code = document.getElementById('code').value;
+      const lang = document.getElementById('language').value;
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '';
+
+      const loopRegex = lang === 'python' 
+        ? /\b(for\s+.+\s+in\s+.+|while\s+.+):/g 
+        : /\b(for\s*\(.+;.+;.+\)|while\s*\(.+\))\s*\{/g;
+      const loopMatches = [...code.matchAll(loopRegex)];
+      const loopCount = loopMatches.length;
+
+      const functionDefRegex = lang === 'python'
+        ? /\bdef\s+(\w+)\s*\(/g
+        : /\b(?:void|int|double|float|String|char|bool|boolean)\s+(\w+)\s*\([^)]*\)\s*\{/g;
+
+      const functionNames = [...code.matchAll(functionDefRegex)].map(match => match[1]);
+
+      let recursionDetected = false;
+      functionNames.forEach(fn => {
+        const callRegex = new RegExp(`\\b${fn}\\s*\\(`, 'g');
+        const callMatches = [...code.matchAll(callRegex)];
+        if (callMatches.length > 1 && fn !== "main") {
+          recursionDetected = true;
+        }
+      });
+
+      let spaceComplexity = "O(1)";
+      let spaceUsage = [];
+
+      const dynamicStructures = {
+        'java': /(new\s+(ArrayList|LinkedList|HashMap|HashSet|ArrayDeque|PriorityQueue)\s*<.*>\(\)|\w+\s*\[\s*\])/g,
+        'python': /(list\(\)|dict\(\)|set\(\)|\[\]|\{\})/g,
+        'cpp': /(new\s+(vector|list|map|set|unordered_map|unordered_set|queue|stack|priority_queue)\s*<.*>\(\)|\w+\s*\[\s*\])/g
+      };
+
+      const dynamicMatches = [...code.matchAll(dynamicStructures[lang])];
+      if (dynamicMatches.length > 0) {
+        spaceComplexity = "O(n)";
+        spaceUsage.push(`Dynamic data structures used: ${dynamicMatches.map(m => m[0].split('\n')[0]).join(', ')}`);
+      }
+
+      if (recursionDetected) {
+        spaceComplexity = spaceComplexity === "O(1)" ? "O(n)" : spaceComplexity + " + O(n) (recursion stack)";
+      }
+
+      const multipleDataStructures = dynamicMatches.length > 1;
+      if (multipleDataStructures) {
+        spaceComplexity = "O(n)";
+      }
+
+      let maxDepth = 0, depth = 0;
+      const lines = code.split('\n');
+      for (let line of lines) {
+        const trimmed = line.trim();
+
+        const isLoop = lang === 'python' 
+          ? /^\s*(for|while)\b/.test(trimmed) && trimmed.endsWith(':')
+          : /^\s*(for|while)\b/.test(trimmed) && trimmed.endsWith('{');
+
+        if (isLoop) {
+          depth++;
+          if (depth > maxDepth) maxDepth = depth;
+        }
+
+        if (lang !== 'python' && trimmed.endsWith("}")) {
+          depth = Math.max(0, depth - 1);
+        } else if (lang === 'python' && trimmed.match(/^\s*(else|elif)\b/)) {
+          depth = Math.max(1, depth);
+        }
+      }
+
+      let timeComplexity = "O(1)";
+      let timeExplanation = "Constant time - no loops or recursion detected";
+
+      if (recursionDetected) {
+        const recursiveCalls = functionNames.some(fn => {
+          const fnRegex = new RegExp(`\\b${fn}\\s*\\([^)]*\\)`, 'g');
+          const calls = code.match(fnRegex) || [];
+          return calls.length > 2;
+        });
+
+        timeComplexity = recursiveCalls ? "O(2^n)" : "O(n)";
+        timeExplanation = recursiveCalls 
+          ? "Exponential time - multiple recursive calls per iteration (e.g., Fibonacci)" 
+          : "Linear time - single recursive call per iteration";
+      } else if (maxDepth === 1) {
+        timeComplexity = "O(n)";
+        timeExplanation = "Linear time - single loop detected";
+      } else if (maxDepth === 2) {
+        timeComplexity = "O(n^2)";
+        timeExplanation = "Quadratic time - nested loops detected";
+      } else if (maxDepth >= 3) {
+        timeComplexity = `O(n^${maxDepth})`;
+        timeExplanation = `Polynomial time - ${maxDepth} levels of nested loops detected`;
+      }
+
+      resultDiv.innerHTML = `
+        <div><span class="complexity">Estimated Time Complexity:</span> ${timeComplexity}</div>
+        <div>${timeExplanation}</div>
+        <div><span class="complexity">Estimated Space Complexity:</span> ${spaceComplexity}</div>
+        ${spaceUsage.length > 0 ? `<div>${spaceUsage.join('<br>')}</div>` : ''}
+        <div>Loops Detected: ${loopCount}</div>
+        <div>Maximum Nesting Depth: ${maxDepth}</div>
+        <div>Recursion Detected: ${recursionDetected ? '<span class="warning">Yes</span>' : 'No'}</div>
+      `;
+    }
+  </script>
+
+</body>
+</html>

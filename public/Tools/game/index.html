@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Word Snake Game</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .game-container {
+      max-width: 700px;
+      margin: 0 auto;
+      background-color: #1c1c1c;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    }
+
+    canvas {
+      border: 3px solid #fff;
+      background-color: #333;
+      margin-top: 20px;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+      color: #00e6e6;
+    }
+
+    #score {
+      font-size: 22px;
+      margin: 10px 0;
+    }
+
+    #hint {
+      font-size: 20px;
+      margin: 10px 0;
+      color: #00ffcc;
+    }
+
+    #playAgainBtn {
+      display: none;
+      font-size: 18px;
+      margin-top: 20px;
+      padding: 10px 25px;
+      background-color: #00b894;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #playAgainBtn:hover {
+      background-color: #00997a;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>🧠 Word Snake Game</h1>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <div id="score">Score: 0</div>
+    <div id="hint">Hint: </div>
+    <button id="playAgainBtn" onclick="startNewGame()">Play Again</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const snakeSize = 20;
+    let snake = [{ x: 100, y: 100 }];
+    let direction = 'RIGHT';
+    let foodItems = [];
+    let usedWords = [];
+    let currentWord = '';
+    let currentSpelling = '';
+    let nextFood = '';
+    let score = 0;
+    let gameOverFlag = false;
+    let gameSpeed = 200;
+    let gameInterval;
+
+    const words = [
+      'terminal', 'router', 'switches', 'database', 'compiler', 'function',
+      'operator', 'variable', 'encoding', 'protocol', 'checksum', 'firewall',
+      'overflow', 'encoding', 'graphics', 'keyboard', 'hardware', 'software',
+      'firmware', 'networks', 'security', 'internet', 'ethernet', 'hashcode',
+      'linkedlist', 'quicksort', 'mergesort', 'heapsort', 'bubblesort',
+      'binarytree', 'greedyalg', 'stackheap', 'queuesys', 'hashmapx', 'bitmaskx'
+    ];
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowUp' && direction !== 'DOWN') direction = 'UP';
+      if (event.key === 'ArrowDown' && direction !== 'UP') direction = 'DOWN';
+      if (event.key === 'ArrowLeft' && direction !== 'RIGHT') direction = 'LEFT';
+      if (event.key === 'ArrowRight' && direction !== 'LEFT') direction = 'RIGHT';
+    });
+
+    function generateWord() {
+      const available = words.filter(w => !usedWords.includes(w));
+      if (available.length === 0) {
+        alert('All words completed! Final Score: ' + score);
+        return gameOver();
+      }
+      currentWord = available[Math.floor(Math.random() * available.length)];
+      usedWords.push(currentWord);
+      currentSpelling = currentWord.substring(0, 2);
+      nextFood = currentWord.substring(2, 4);
+      generateFoodItems();
+      updateHint();
+    }
+
+    function generateFoodItems() {
+      foodItems = [];
+
+      // Add correct one
+      const correct = {
+        word: nextFood,
+        x: getRandomCoord(canvas.width),
+        y: getRandomCoord(canvas.height)
+      };
+      foodItems.push(correct);
+
+      // Add 2 incorrect 2-letter segments
+      const fragments = 'abcdefghijklmnopqrstuvwxyz';
+      while (foodItems.length < 3) {
+        let rand = fragments[Math.floor(Math.random() * 26)] + fragments[Math.floor(Math.random() * 26)];
+        if (rand !== nextFood && !foodItems.some(f => f.word === rand)) {
+          foodItems.push({
+            word: rand,
+            x: getRandomCoord(canvas.width),
+            y: getRandomCoord(canvas.height)
+          });
+        }
+      }
+    }
+
+    function getRandomCoord(max) {
+      return Math.floor(Math.random() * (max / snakeSize)) * snakeSize;
+    }
+
+    function moveSnake() {
+      let head = { ...snake[0] };
+      if (direction === 'UP') head.y -= snakeSize;
+      if (direction === 'DOWN') head.y += snakeSize;
+      if (direction === 'LEFT') head.x -= snakeSize;
+      if (direction === 'RIGHT') head.x += snakeSize;
+      snake.unshift(head);
+
+      let ate = false;
+      foodItems.forEach((food, index) => {
+        if (head.x === food.x && head.y === food.y) {
+          if (food.word === nextFood) {
+            currentSpelling += food.word;
+            ate = true;
+            if (currentSpelling.length === currentWord.length) {
+              score++;
+              if (score % 4 === 0 && gameSpeed > 50) {
+                gameSpeed -= 10;
+                clearInterval(gameInterval);
+                gameInterval = setInterval(gameLoop, gameSpeed);
+              }
+              generateWord();
+            } else {
+              nextFood = currentWord.substring(currentSpelling.length, currentSpelling.length + 2);
+              generateFoodItems();
+            }
+          } else {
+            gameOver();
+          }
+        }
+      });
+
+      if (!ate) snake.pop();
+
+      if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || collision(head)) {
+        gameOver();
+      }
+    }
+
+    function collision(head) {
+      return snake.some((seg, idx) => idx !== 0 && seg.x === head.x && seg.y === head.y);
+    }
+
+    function gameOver() {
+      gameOverFlag = true;
+      document.getElementById('playAgainBtn').style.display = 'inline-block';
+      alert('Game Over! Final Score: ' + score);
+    }
+
+    function updateHint() {
+      const blanks = currentWord
+        .split('')
+        .map((ch, i) => (i < currentSpelling.length ? currentSpelling[i] : '_'))
+        .join(' ');
+      document.getElementById('hint').textContent = 'Hint: ' + blanks;
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Snake
+      snake.forEach((seg, i) => {
+        ctx.fillStyle = i === 0 ? '#00ff00' : '#007f00';
+        ctx.fillRect(seg.x, seg.y, snakeSize, snakeSize);
+      });
+
+      // Food
+      foodItems.forEach(food => {
+        ctx.fillStyle = 'red';
+        ctx.fillRect(food.x, food.y, snakeSize, snakeSize);
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+        ctx.fillText(food.word, food.x + 2, food.y + 14);
+      });
+
+      document.getElementById('score').textContent = 'Score: ' + score;
+      updateHint();
+    }
+
+    function gameLoop() {
+      if (gameOverFlag) return;
+      moveSnake();
+      draw();
+    }
+
+    function resetGame() {
+      snake = [{ x: 100, y: 100 }];
+      direction = 'RIGHT';
+      score = 0;
+      usedWords = [];
+      gameSpeed = 200;
+      gameOverFlag = false;
+      document.getElementById('playAgainBtn').style.display = 'none';
+      generateWord();
+      clearInterval(gameInterval);
+      gameInterval = setInterval(gameLoop, gameSpeed);
+    }
+
+    function startNewGame() {
+      resetGame();
+    }
+
+    // Start on load
+    resetGame();
+  </script>
+</body>
+</html>
